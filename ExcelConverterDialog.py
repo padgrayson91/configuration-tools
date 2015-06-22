@@ -42,7 +42,7 @@ class ExcelConverterDialog(Frame):
 		delimeter_entry = Entry(conversion_frame, textvar=self.conversions[len(self.conversions) - 1]["delimeter"])
 		self.delimeter_entries.append(delimeter_entry)
 		delimeter_entry.pack(side=LEFT)
-		conversion_frame.pack()
+		conversion_frame.pack(side=TOP, fill=X)
 
 	def do_load(self, conversion_name):
 		f = open("mappings.json", "r")
@@ -97,6 +97,25 @@ class ExcelConverterDialog(Frame):
 
 		self.constants[constant_field] = constant_val
 
+	def show_constants(self):
+		top = Toplevel()
+		top.title = "Constants for this mapping"
+		top.geometry("400x200+100+100")
+
+		bg = Frame(top)
+
+		for constant in self.constants:
+			for_display = "%s: %s" % (constant, self.constants[constant])
+			frm = Frame(bg)
+			Label(frm, text=for_display).pack(side=LEFT)
+			frm.pack(side=TOP, fill=X)
+
+		button = Button(bg, text="Dismiss", command=top.destroy)
+		button.pack()
+
+		bg.pack(fill=BOTH, expand=1)
+
+
 
 
 	def remove_mapping(self):
@@ -135,7 +154,7 @@ class ExcelConverterDialog(Frame):
 			conversion_box = apply(OptionMenu, (conversion_frame, self.conversions[len(self.conversions) - 1]["source"]) + tuple(self.input_column_headers))
 			self.conversion_boxes.append(conversion_box)
 			conversion_box.pack(side=LEFT)
-			conversion_frame.pack()
+			conversion_frame.pack(side=TOP, fill=X)
 		else:
 			for box in self.conversion_boxes:
 				box.config(values=self.input_column_headers)
@@ -173,7 +192,7 @@ class ExcelConverterDialog(Frame):
 			delimeter_entry = Entry(conversion_frame, textvar=self.conversions[len(self.conversions) - 1]["delimeter"])
 			self.delimeter_entries.append(delimeter_entry)
 			delimeter_entry.pack(side=LEFT)
-			conversion_frame.pack()
+			conversion_frame.pack(side=TOP, fill=X)
 
 		else:
 			for box in self.output_boxes:
@@ -229,11 +248,12 @@ class ExcelConverterDialog(Frame):
 		Frame(self.load_save_bar, width=2, borderwidth=1, relief=SUNKEN).pack(side=LEFT, fill=Y, padx=5, pady=5)
 
 		save_name = StringVar()
-		self.save_button = Button(self.load_save_bar, text="Save as:", command=lambda: self.save_mapping(save_name.get()))
-		self.save_button.pack(side=LEFT)
+		Label(self.load_save_bar, text="Save mapping as: ").pack(side=LEFT)
 
 		self.save_name_entry = Entry(self.load_save_bar, textvar = save_name)
 		self.save_name_entry.pack(side=LEFT)
+		self.save_button = Button(self.load_save_bar, text="Save", command=lambda: self.save_mapping(save_name.get()))
+		self.save_button.pack(side=LEFT)
 
 		self.load_save_bar.pack(side=TOP)
 		self.constants_bar = Frame(self)
@@ -246,9 +266,8 @@ class ExcelConverterDialog(Frame):
 		self.constant_val_entry = Entry(self.constants_bar, textvar=self.constant_val)
 		self.constant_val_entry.pack(side=LEFT)
 		Button(self.constants_bar, text="Store", command=self.store_constant).pack(side=LEFT)
+		Button(self.constants_bar, text="View", command=self.show_constants).pack(side=LEFT)
 		self.constants_bar.pack(side=TOP)
-
-
 
 
 		self.conversions_frame = Frame(self, relief=SUNKEN, borderwidth=1)
