@@ -211,6 +211,7 @@ class ExcelConverterDialog(Frame):
 			actual_conversions[item['destination'].get()]['delimeter'] = item['delimeter'].get()
 
 		self.reformat_csv("temp.csv", self.out_path, actual_conversions)
+		showinfo("Notification", "Success!")
 
 
 
