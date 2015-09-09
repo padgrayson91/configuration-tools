@@ -90,6 +90,7 @@ class ExcelConverterDialog(Frame):
 
 		f = open("mappings.json", "w+")
 		f.write(lines)
+		f.close()
 
 	def store_constant(self):
 		constant_field = self.constant_field.get()
@@ -292,6 +293,7 @@ class ExcelConverterDialog(Frame):
 		self.finish_button.pack(side=RIGHT)
 
 	def reformat_csv(self, csv_in, csv_out, conversions):
+		outputs = []
 		out_headers = []
 		with open(csv_out, 'rU') as csvoutfile:
 			reader = csv.reader(csvoutfile)
@@ -301,30 +303,37 @@ class ExcelConverterDialog(Frame):
 			outwriter = csv.writer(csvoutfile)
 			outwriter.writerow(out_headers)
 			headers = inreader.next()
+			index_of_row = 0
 			for row in inreader:
+				print "Row: %d" % index_of_row
+				index_of_row += 1
 				output = [None]*len(out_headers)
 				for out_header in out_headers:
 					try:
 						output_conversion = conversions[out_header]
 						if len(output_conversion['sources']) == 1:
+							print "Writing %s to %s" % (row[headers.index(output_conversion['sources'][0])], out_header)
 							output[out_headers.index(out_header)] = row[headers.index(output_conversion['sources'][0])]
 						else:
 							output[out_headers.index(out_header)] = ""
 							for source in output_conversion['sources']:
 								output[out_headers.index(out_header)] += (row[headers.index(source)] + output_conversion['delimeter'])
-								output[out_headers.index(out_header)] = output[out_headers.index(out_header)][:-1*len(output_conversion['delimeter'])]
+								output[out_headers.index(out_header)] += output[out_headers.index(out_header)][:-1*len(output_conversion['delimeter'])]
 					except KeyError:
-						print "No source given to fill column " + out_header
-    			for constant in self.constants:
-    				try:
-    					index = out_headers.index(constant)
-    					if index >= 0 and output[index] != None:
-    						output[index] += self.constants[constant]
-    					elif index >= 0:
-    						output[index] = self.constants[constant]
-    				except ValueError:
-    					pass
-    			outwriter.writerow(output)
+						#print "No source given to fill column " + out_header
+						output[out_headers.index(out_header)] = ""
+				for constant in self.constants:
+					try:
+						index = out_headers.index(constant)
+						if index >= 0 and output[index] != None:
+							output[index] += self.constants[constant]
+						elif index >= 0:
+							output[index] = self.constants[constant]
+					except ValueError:
+						pass
+				outwriter.writerow(output)
+				print "Writing row..."
+
 
 
 
